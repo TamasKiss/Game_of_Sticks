@@ -5,26 +5,26 @@
 
 
 /*
-A játék szabályai:
-1., Minden játékos elvesz 1,2 vagy 3 pálcát a saját körében
-2., Az veszít, aki az utolsó pálcát elveszi
+Rules:
+1., Each player takes one, two or three stick in turns
+2., The player who takes the last stick loses the match
 */
 
 
 
-bool check_validity(int sticks, int valasz, bool isPlayer)
+bool check_validity(int sticks, int answer, bool isPlayerOne)
 {
-	if(valasz > 3 || valasz < 1)
+	if(answer > 3 || answer < 1)
 	{
-		if(isPlayer)
-			printf("Lehetséges választás: 1, 2, 3\n");
+		if(isPlayerOne)
+			printf("How many sticks do you want to take?(1,2,3)\n");
 		return false;
 	}
 
-	if(sticks - valasz < 0)
+	if(sticks - answer < 0)
 	{
-		if(isPlayer)
-			printf("Ennyit már nem vehetsz el.\n");
+		if(isPlayerOne)
+			printf("You can't take that many.\n");
 		return false;
 	}
 
@@ -37,41 +37,40 @@ int main() {
 	int sticks = 0;
 	int mode = 0;
 	int turns = 0;
+  char playerNumber[] = "Second";
 
-	printf("játékos vs. AI(1) vagy két játékos(2)?\n");
+	printf("player vs. AI(1) or two players?(2)?\n");
 	scanf("%i", &mode);
 
-	printf("Hány pálca legyen?\n");
+	printf("How many sticks?\n");
 	scanf("%i", &sticks);
 
 	if(mode == 2)	//HUMAN VS. HUMAN
 	{
 		while(sticks > 0)
 		{
-			if(turns % 2 == 0)
-			{
-				printf("#1. játékos jön, %i db pálca van az asztalon. Hányat veszel el?(1-3)\n",sticks);
-				sticks = humanplayer(sticks);
-			}
 
-			else
-			{
-				printf("#2. játékos jön, %i db pálca van az asztalon. Hányat veszel el?(1-3)\n",sticks);
-				sticks = humanplayer(sticks);
-			}
+
+			if(turns % 2 == 0)
+        strcpy(playerNumber,"First");
+
+
+		  printf("%s player's turn. There are %i number of sticks. How many do you want to take?(1-3)\n",playerNumber,sticks);
+			sticks = humanplayer(sticks);
+
 			turns++;
 		}
 
 		if(turns % 2 == 0 )
-			printf("Az első játékos nyert!\n");
+			printf("The first player won!\n");
 		else
-			printf("A második játékos nyert!\n");
+			printf("The second player won!\n");
 	}
 
 	else  //HUMAN VS. AI
 	{
 		int tries = 0;
-		printf("Hány próbálkozása van az AI-nak?\n");
+		printf("How many tries should the AI get?\n");
 		scanf("%i",&tries);
 
 		const int container = tries + 3; // ez határozza meg a tömb méretét
@@ -79,8 +78,8 @@ int main() {
 		int initial_tries = tries;
 		int initial_sticks = sticks;
 
-		int gepnyer = 0;
-		int jatnyer = 0;
+		int aiwins = 0;
+		int playerwins = 0;
 
 		int hats[sticks][initial_tries];
 		initializehats(initial_sticks, initial_tries, hats);
@@ -94,13 +93,13 @@ int main() {
 			{
 				if(turns % 2 == 0)
 				{
-					printf("A számítógép jön. %i pálca van.\n", sticks);
+					printf("The AI goes next. There are %i sticks.\n", sticks);
 					sticks = AIplayer(sticks, initial_tries, hats, currentplay);
-					printf("%i pálca maradt.\n",sticks);
+					printf("%i sticks remain.\n",sticks);
 				}
 				else
 				{
-					printf("A játékos jön, %i db pálca van az asztalon. Hányat veszel el?(1-3)\n",sticks);
+					printf("The player goes next. There are %i sticks. How many do you take?(1,2,3)\n",sticks);
 					sticks = humanplayer(sticks);
 				}
 				turns++;
@@ -108,36 +107,36 @@ int main() {
 
 			if(turns % 2 == 1)
 			{
-				printf("A játékos nyert!\n\n");
+				printf("The player won!\n\n");
 				getthemoutfromthehats(initial_tries, initial_sticks, hats, currentplay);
-				jatnyer++;
+				playerwins++;
 			}
 			else
 			{
-				printf("A gép nyert!\n\n");
+				printf("The AI won!\n\n");
 				putthemtothehats(initial_tries, initial_sticks, hats, currentplay);
-				gepnyer++;
+				aiwins++;
 			}
 
 			sticks = initial_sticks;
 		}
 
-		printf("A játékos %i-szer nyert\n",jatnyer);
-		printf("A gép %i-szer nyert\n",gepnyer);
+		printf("The human won %i times\n",playerwins);
+		printf("The AI won    %i times\n",aiwins);
 	}
 }
 
 int humanplayer(int sticks) {
-	int valasz = 100;
+	int answer = 100;
 	bool valid = false;
 
 	while(!valid)
 	{
-		scanf("%i",&valasz);
-		valid = check_validity(sticks, valasz, true);
+		scanf("%i",&answer);
+		valid = check_validity(sticks, answer, true);
 	}
 
-	return sticks - valasz;
+	return sticks - answer;
 }
 
 int AIplayer(int sticks, int tries, int hats[][tries], int currentplay[]) {
@@ -156,7 +155,7 @@ int initializehats(int sticks, int tries, int hats[][tries])
 	for(i=0;i<sticks;i++)
 		for(j=0;j<tries;j++)
 		{
-			if(j < 3) 
+			if(j < 3)
 				hats[i][j] = j+1;
 			else
 				hats[i][j] = 0;
